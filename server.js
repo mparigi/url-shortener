@@ -47,7 +47,7 @@ app.get("/new/*", function (req, res) {
                         if (err) throw err;
                         res.end(JSON.stringify({
                             "original_url": results.ops[0].srcUrl,
-                            "short_url": req.hostname + "/redir/" + results.ops[0]._id.toString()
+                            "short_url": "https://" + req.hostname + "/redir/" + results.ops[0]._id.toString()
                         }));
                         db.close();
                     });
@@ -58,7 +58,7 @@ app.get("/new/*", function (req, res) {
                 console.log("requested url does exist");
                 res.end(JSON.stringify({
                     "original_url": data[0].srcUrl,
-                    "short_url": req.hostname + "/redir/" + data[0]._id.toString()
+                    "short_url": "https://" + req.hostname + "/redir/" + data[0]._id.toString()
                 }));
                 db.close();
             }
