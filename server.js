@@ -81,6 +81,9 @@ app.get("/redir/:requestNum", function (req, res) {
             _id: Number(requestNum)
         }).toArray(function (err, data) {
             if (err) throw err;
+            if (!data.length) {
+                res.end("not valid");
+            }
             res.redirect(data[0].srcUrl)
             db.close();
         });
