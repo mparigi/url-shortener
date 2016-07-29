@@ -23,10 +23,6 @@ app.use(mdware({
     url: "/"
 }));
 
-app.use(function (req, res) {
-  res.send(req.mdware.html);
-});
-
 
 
 //creation
