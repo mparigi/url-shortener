@@ -28,6 +28,7 @@ app.use(function (req, res) {
 });
 
 
+
 //creation
 app.get("/new/*", function (req, res) {
     var newUrl = req.originalUrl.toString().slice(5);
