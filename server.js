@@ -3,44 +3,77 @@ var express = require("express");
 
 var app = express();
 
-app.get("/new/:url", function (req, res) {
-    var newUrl = req.params.url;
+
+/*
+entries to urls:
+        
+{
+    _id: the identification number,
+    srcUrl: the original url
+}
+
+*/
+
+
+//creation
+app.get("/new/*", function (req, res) {
+    var newUrl = req.originalUrl.toString().slice(5);
     
     if (invalidUrl(newUrl)) {
-        res.end(JSON.stringify({"error": "invalid url"}))
+        return res.end(JSON.stringify({"error": "invalid url"}));
     }
     
-    mongo.connect('mongodb://localhost:27017/url-shortener', function (err, db) {
+    mongo.connect('mongodb://' + process.env.IP + ':27017/url-shortener', function (err, db) {
         if (err) throw err;
-        
+        console.log("connected to db");
         var urls = db.collection("urls");
         
-        /*
-        entries to urls:
-        
-        {
-            _id: the identification number,
-            origUrl: the original url
-        }
-        */
-        
-        
-        
         urls.find({
-            "origUrl": newUrl
+            srcUrl: newUrl
         }).toArray(function(err, data) {
             if (err) throw err;
-            if (!data) { //the new url does not already exist
+            if (!data.length) { //the requested url does not already exist
+                console.log("requested url doesn't exist");
+                //create new entry
+                urls.count(function (err, cnt) {
+                    if (err) throw err;
+                    
+                    urls.insert({
+                        _id: cnt, //assign consecutive number
+                        srcUrl: newUrl
+                    }, function (err, results) {
+                        if (err) throw err;
+                        res.end(JSON.stringify({
+                            "original_url": results.ops[0].srcUrl,
+                            "short_url": req.hostname + "/" + results.ops[0]._id.toString()
+                        }));
+                        db.close();
+                    });
+                    
+                });
                 
-            } else {
-                console.log(data);
-                db.close()
+            } else { //the requested url already exists
+                console.log("requested url does exist");
+                res.end(JSON.stringify({
+                    "original_url": data[0].srcUrl,
+                    "short_url": req.hostname + "/" + data[0]._id.toString()
+                }));
+                db.close();
             }
         });
         
     });
     
 });
+
+
+app.get("/:requestNum", function (req, res) {
+    var requestNum = req.params.requestNum;
+    res.end("received request");
+});
+
+
+app.listen(process.env.PORT || 8080);
 
 
 
