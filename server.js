@@ -25,7 +25,7 @@ app.get("/new/*", function (req, res) {
     
     mongo.connect('mongodb://' + process.env.IP + ':27017/url-shortener', function (err, db) {
         if (err) throw err;
-        console.log("connected to db");
+        console.log("connected to db (creation)");
         var urls = db.collection("urls");
         
         urls.find({
@@ -45,7 +45,7 @@ app.get("/new/*", function (req, res) {
                         if (err) throw err;
                         res.end(JSON.stringify({
                             "original_url": results.ops[0].srcUrl,
-                            "short_url": req.hostname + "/" + results.ops[0]._id.toString()
+                            "short_url": req.hostname + "/redir/" + results.ops[0]._id.toString()
                         }));
                         db.close();
                     });
@@ -56,7 +56,7 @@ app.get("/new/*", function (req, res) {
                 console.log("requested url does exist");
                 res.end(JSON.stringify({
                     "original_url": data[0].srcUrl,
-                    "short_url": req.hostname + "/" + data[0]._id.toString()
+                    "short_url": req.hostname + "/redir/" + data[0]._id.toString()
                 }));
                 db.close();
             }
@@ -67,9 +67,24 @@ app.get("/new/*", function (req, res) {
 });
 
 
-app.get("/:requestNum", function (req, res) {
+app.get("/redir/:requestNum", function (req, res) {
     var requestNum = req.params.requestNum;
-    res.end("received request");
+    console.log("received request, requestNum: " + requestNum);
+    
+    mongo.connect('mongodb://' + process.env.IP + ':27017/url-shortener', function (err, db) {
+        if (err) throw err;
+        console.log("connected to db (redirection)");
+        var urls = db.collection("urls");
+        urls.find({
+            _id: Number(requestNum)
+        }).toArray(function (err, data) {
+            if (err) throw err;
+            res.redirect(data[0].srcUrl)
+            db.close();
+        });
+        
+    });
+    
 });
 
 
