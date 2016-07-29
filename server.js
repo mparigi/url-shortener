@@ -1,5 +1,6 @@
 var mongo = require("mongodb").MongoClient;
 var express = require("express");
+var mdware = require("mdware");
 
 var url = process.env.MONGOLAB_URI;
 
@@ -15,6 +16,13 @@ entries to urls:
 }
 
 */
+
+
+app.use(mdware({
+    dir: __dirname + "/static",
+    url: "/"
+}));
+
 
 
 //creation
