@@ -1,6 +1,8 @@
 var mongo = require("mongodb").MongoClient;
 var express = require("express");
 
+var getConnectionUrl = require("./url.js");
+
 var app = express();
 
 
@@ -23,7 +25,7 @@ app.get("/new/*", function (req, res) {
         return res.end(JSON.stringify({"error": "invalid url"}));
     }
     
-    mongo.connect('mongodb://' + process.env.IP + ':27017/url-shortener', function (err, db) {
+    mongo.connect(getConnectionUrl(), function (err, db) {
         if (err) throw err;
         console.log("connected to db (creation)");
         var urls = db.collection("urls");
@@ -71,7 +73,7 @@ app.get("/redir/:requestNum", function (req, res) {
     var requestNum = req.params.requestNum;
     console.log("received request, requestNum: " + requestNum);
     
-    mongo.connect('mongodb://' + process.env.IP + ':27017/url-shortener', function (err, db) {
+    mongo.connect(getConnectionUrl(), function (err, db) {
         if (err) throw err;
         console.log("connected to db (redirection)");
         var urls = db.collection("urls");
