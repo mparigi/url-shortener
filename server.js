@@ -24,8 +24,7 @@ app.use(mdware({
 }));
 
 app.use("/", function (req, res, next) {
-    console.log("test");
-    res.send(req.mdware.html);
+    res.send(req.mdware);
     next();
 });
 
